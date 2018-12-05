@@ -1,0 +1,6 @@
+[package]
+name = "coinbase"
+version = "0.1.0"
+authors = ["l1h3r <devin.turner09@gmail.com>"]
+
+[dependencies]
