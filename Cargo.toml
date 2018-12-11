@@ -2,5 +2,24 @@
 name = "coinbase"
 version = "0.1.0"
 authors = ["l1h3r <devin.turner09@gmail.com>"]
+edition = "2018"
+description = "Coinbase Wallet API Client"
+repository = "https://github.com/l1h3r/coinbase"
+readme = "README.md"
+license = "MIT"
+keywords = ["coinbase", "cryptocurrency", "exchange", "api"]
+categories = ["api"]
+
+[lib]
+name = "coinbase"
+path = "src/lib.rs"
 
 [dependencies]
+chrono = { version = "0.4.6", features = ["serde"] }
+crypto-mac = "0.7.0"
+hmac = "0.7.0"
+reqwest = "0.9.5"
+serde = "1.0.81"
+serde_derive = "1.0.81"
+serde_json = "1.0.33"
+sha2 = "0.8.0"
