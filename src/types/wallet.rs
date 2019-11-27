@@ -153,7 +153,7 @@ pub struct UserCountry {
   //
   // Undocumented
   //
-  is_in_europe: Option<bool>,
+  pub is_in_europe: Option<bool>,
 }
 
 ///
@@ -197,10 +197,10 @@ pub struct Address {
   //
   // Undocumented
   //
-  uri_scheme: Option<String>,
-  warning_title: Option<String>,
-  warning_details: Option<String>,
-  callback_url: Option<String>,
+  pub uri_scheme: Option<String>,
+  pub warning_title: Option<String>,
+  pub warning_details: Option<String>,
+  pub callback_url: Option<String>,
 }
 
 ///
@@ -266,8 +266,8 @@ pub struct Transaction {
   //
   // Undocumented
   //
-  buy: Option<ValueMap>,
-  idem: Option<String>,
+  pub buy: Option<ValueMap>,
+  pub idem: Option<String>,
 }
 
 ///
@@ -298,8 +298,8 @@ pub struct User {
   //
   // Undocumented
   //
-  tiers: Option<ValueMap>,
-  state: Option<String>,
+  pub tiers: Option<ValueMap>,
+  pub state: Option<String>,
 }
 
 ///
@@ -323,13 +323,13 @@ pub struct Buy {
   //
   // Undocumented
   //
-  user_reference: Option<String>,
-  unit_price: Option<Money>,
-  hold_until: Option<DateTime>,
-  hold_days: Option<usize>,
-  is_first_buy: Option<bool>,
-  hold_business_days: Option<usize>,
-  requires_completion_step: Option<bool>,
+  pub user_reference: Option<String>,
+  pub unit_price: Option<Money>,
+  pub hold_until: Option<DateTime>,
+  pub hold_days: Option<usize>,
+  pub is_first_buy: Option<bool>,
+  pub hold_business_days: Option<usize>,
+  pub requires_completion_step: Option<bool>,
 }
 
 ///

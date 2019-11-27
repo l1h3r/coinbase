@@ -10,5 +10,5 @@ pub struct Money {
   //
   // Undocumented
   //
-  scale: Option<usize>,
+  pub scale: Option<usize>,
 }
