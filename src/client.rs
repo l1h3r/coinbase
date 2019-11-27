@@ -19,7 +19,7 @@ type HmacSha = Hmac<Sha256>;
 
 const ENDPOINT: &str = "https://api.coinbase.com/v2/";
 const U_AGENT: &str = concat!("coinbase/rs/", env!("CARGO_PKG_VERSION"));
-const VERSION: &str = "2018-12-05";
+const VERSION: &str = "2019-11-15";
 
 #[derive(Debug)]
 pub struct Client {
