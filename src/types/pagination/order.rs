@@ -11,3 +11,12 @@ impl Default for Order {
     Order::DESC
   }
 }
+
+impl ToString for Order {
+  fn to_string(&self) -> String {
+    match self {
+      Self::ASC => "asc".to_string(),
+      Self::DESC => "desc".to_string(),
+    }
+  }
+}

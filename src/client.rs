@@ -118,8 +118,8 @@ impl Client {
   /// Lists notifications where the current user was the subscriber
   ///
   /// https://developers.coinbase.com/api/v2#list-notifications
-  pub fn list_notifications(&self) -> CBResult<Vec<Notification>> {
-    self.get("notifications")
+  pub fn list_notifications(&self, pagination: Option<Pagination>) -> CBResult<Vec<Notification>> {
+    self.getp("notifications", pagination)
   }
 
   /// Show a notification for which the current user was a subscriber.
@@ -169,8 +169,8 @@ impl Client {
   /// Lists current user's accounts to which the authentication method has access to.
   ///
   /// https://developers.coinbase.com/api/v2#list-accounts
-  pub fn list_accounts(&self) -> CBResult<Vec<Account>> {
-    self.get("accounts")
+  pub fn list_accounts(&self, pagination: Option<Pagination>) -> CBResult<Vec<Account>> {
+    self.getp("accounts", pagination)
   }
 
   /// Show current user's account.
@@ -208,8 +208,8 @@ impl Client {
   /// Lists addresses for an account.
   ///
   /// https://developers.coinbase.com/api/v2#list-addresses
-  pub fn list_addresses(&self, account: &str) -> CBResult<Vec<Address>> {
-    self.get(&format!("accounts/{}/addresses", account))
+  pub fn list_addresses(&self, account: &str, pagination: Option<Pagination>) -> CBResult<Vec<Address>> {
+    self.getp(&format!("accounts/{}/addresses", account), pagination)
   }
 
   /// Show an individual address for an account
@@ -242,8 +242,8 @@ impl Client {
   /// Lists account's transactions
   ///
   /// https://developers.coinbase.com/api/v2#list-transactions
-  pub fn list_transactions(&self, account: &str) -> CBResult<Vec<Transaction>> {
-    self.get(&format!("accounts/{}/transactions", account))
+  pub fn list_transactions(&self, account: &str, pagination: Option<Pagination>) -> CBResult<Vec<Transaction>> {
+    self.getp(&format!("accounts/{}/transactions", account), pagination)
   }
 
   /// Show an individual transaction for an account
@@ -298,8 +298,8 @@ impl Client {
   /// Lists buys for an account.
   ///
   /// https://developers.coinbase.com/api/v2#list-buys
-  pub fn list_buys(&self, account: &str) -> CBResult<Vec<Buy>> {
-    self.get(&format!("accounts/{}/buys", account))
+  pub fn list_buys(&self, account: &str, pagination: Option<Pagination>) -> CBResult<Vec<Buy>> {
+    self.getp(&format!("accounts/{}/buys", account), pagination)
   }
 
   /// Show an individual buy.
@@ -330,8 +330,8 @@ impl Client {
   /// Lists sells for an account.
   ///
   /// https://developers.coinbase.com/api/v2#list-sells
-  pub fn list_sells(&self, account: &str) -> CBResult<Vec<Sell>> {
-    self.get(&format!("accounts/{}/sells", account))
+  pub fn list_sells(&self, account: &str, pagination: Option<Pagination>) -> CBResult<Vec<Sell>> {
+    self.getp(&format!("accounts/{}/sells", account), pagination)
   }
 
   /// Show an individual sell.
@@ -362,8 +362,8 @@ impl Client {
   /// Lists deposits for an account.
   ///
   /// https://developers.coinbase.com/api/v2#list-deposits
-  pub fn list_deposits(&self, account: &str) -> CBResult<Vec<Deposit>> {
-    self.get(&format!("accounts/{}/deposits", account))
+  pub fn list_deposits(&self, account: &str, pagination: Option<Pagination>) -> CBResult<Vec<Deposit>> {
+    self.getp(&format!("accounts/{}/deposits", account), pagination)
   }
 
   /// Show an individual deposit.
@@ -394,8 +394,8 @@ impl Client {
   /// Lists withdrawals for an accounts.
   ///
   /// https://developers.coinbase.com/api/v2#list-withdrawals
-  pub fn list_withdrawals(&self, account: &str) -> CBResult<Vec<Withdrawal>> {
-    self.get(&format!("accounts/{}/withdrawals", account))
+  pub fn list_withdrawals(&self, account: &str, pagination: Option<Pagination>) -> CBResult<Vec<Withdrawal>> {
+    self.getp(&format!("accounts/{}/withdrawals", account), pagination)
   }
 
   /// Show an individual withdrawal.
@@ -426,8 +426,8 @@ impl Client {
   /// Lists current user's payment methods.
   ///
   /// https://developers.coinbase.com/api/v2#list-payment-methods
-  pub fn list_payment_methods(&self) -> CBResult<Vec<PaymentMethod>> {
-    self.get("payment-methods")
+  pub fn list_payment_methods(&self, pagination: Option<Pagination>) -> CBResult<Vec<PaymentMethod>> {
+    self.getp("payment-methods", pagination)
   }
 
   /// Show current user's payment method.
@@ -443,6 +443,14 @@ impl Client {
 
   fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, Error> {
     self.request(Method::GET, url!(path), String::new())
+  }
+
+  fn getp<T: DeserializeOwned>(&self, path: &str, pagination: Option<Pagination>) -> Result<T, Error> {
+    let url: Url = pagination
+      .map(|pagination| url!(path, &pagination.to_query()))
+      .unwrap_or_else(|| url!(path));
+
+    self.request(Method::GET, url, String::new())
   }
 
   fn post<T: DeserializeOwned, B: Into<String>>(&self, path: &str, body: B) -> Result<T, Error> {
