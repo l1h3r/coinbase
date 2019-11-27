@@ -33,6 +33,23 @@ impl Default for Pagination {
 
 impl Pagination {
   pub fn to_query(&self) -> Vec<(&'static str, String)> {
-    unimplemented!()
+    let mut query: Vec<(&'static str, String)> = vec![
+      ("limit", self.limit.to_string()),
+      ("order", self.order.to_string()),
+    ];
+
+    if let Some(ref value) = self.ending_before {
+      query.push(("ending_before", value.to_owned()));
+    // } else if let Some(ref value) = self.previous_ending_before {
+    //   query.push(("ending_before", value.to_owned()));
+    }
+
+    if let Some(ref value) = self.starting_after {
+      query.push(("starting_after", value.to_owned()));
+    // } else if let Some(ref value) = self.next_starting_after {
+    //   query.push(("starting_after", value.to_owned()));
+    }
+
+    query
   }
 }
