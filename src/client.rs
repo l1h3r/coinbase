@@ -5,6 +5,7 @@ use reqwest::header::HeaderValue;
 use reqwest::Body;
 use reqwest::Client as Http;
 use reqwest::Method;
+use reqwest::Request;
 use reqwest::Url;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -222,11 +223,7 @@ impl Client {
   ///
   /// https://developers.coinbase.com/api/v2#create-address
   pub fn create_address(&self, account: &str, name: Option<&str>) -> CBResult<Address> {
-    let body = if let Some(name) = name {
-      json!(name: name)
-    } else {
-      String::new()
-    };
+    let body: String = name.map(|name| json!(name: name)).unwrap_or_default();
 
     self.post(&format!("accounts/{}/addresses", account), body)
   }
@@ -445,15 +442,15 @@ impl Client {
   //
 
   fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, Error> {
-    self.request(Method::GET, path, String::new())
+    self.request(Method::GET, url!(path), String::new())
   }
 
   fn post<T: DeserializeOwned, B: Into<String>>(&self, path: &str, body: B) -> Result<T, Error> {
-    self.request(Method::POST, path, body.into())
+    self.request(Method::POST, url!(path), body.into())
   }
 
   fn put<T: DeserializeOwned, B: Into<String>>(&self, path: &str, body: B) -> Result<T, Error> {
-    self.request(Method::PUT, path, body.into())
+    self.request(Method::PUT, url!(path), body.into())
   }
 
   fn delete<T>(&self, _path: &str) -> Result<T, Error> {
@@ -464,11 +461,10 @@ impl Client {
     Ok(to_string(&data)?)
   }
 
-  fn request<T: DeserializeOwned>(&self, method: Method, path: &str, body: String) -> Result<T, Error> {
-    let url = Url::parse(&[ENDPOINT, path].join("")).unwrap();
-    let auth = self.auth_headers(&method, &url, &body)?;
+  fn request<T: DeserializeOwned>(&self, method: Method, url: Url, body: String) -> Result<T, Error> {
+    let auth: HeaderMap = self.auth_headers(&method, &url, &body)?;
 
-    let request = self
+    let request: Request = self
       .http
       .request(method, url)
       .header("Accept", "application/json")
@@ -480,7 +476,7 @@ impl Client {
       .body(Body::from(body))
       .build()?;
 
-    let data = self.http.execute(request)?.text()?;
+    let data: String = self.http.execute(request)?.text()?;
 
     from_str(&data).map_err(|error| Error::JSON {
       error,
@@ -493,17 +489,23 @@ impl Client {
   }
 
   fn auth_headers(&self, method: &Method, url: &Url, body: &str) -> Result<HeaderMap, Error> {
-    let mut headers = HeaderMap::new();
+    let mut headers: HeaderMap = HeaderMap::new();
 
     if self.has_auth() {
-      let now = crate::timestamp();
-      let key = self.auth_header(&self.key)?;
-      let timestamp = self.auth_header(&format!("{}", now))?;
+      let now: i64 = crate::timestamp();
+      let key: HeaderValue = self.auth_header(&self.key)?;
+      let timestamp: HeaderValue = self.auth_header(&format!("{}", now))?;
 
-      let signature = {
-        let formatted = format!("{}{}{}{}", now, method, url.path(), body);
-        let signature = self.auth_signature(&formatted)?;
-        self.auth_header(&signature)?
+      let signature: HeaderValue = {
+        let formatted: String = if let Some(query) = url.query() {
+          format!("{}{}{}?{}{}", now, method, url.path(), query, body)
+        } else {
+          format!("{}{}{}{}", now, method, url.path(), body)
+        };
+
+        self
+          .auth_signature(&formatted)
+          .and_then(|signature| self.auth_header(&signature))?
       };
 
       headers.insert("CB-ACCESS-KEY", key);
@@ -515,11 +517,10 @@ impl Client {
   }
 
   fn auth_header(&self, value: &str) -> Result<HeaderValue, Error> {
-    let mut value = HeaderValue::from_str(value)?;
-
-    value.set_sensitive(true);
-
-    Ok(value)
+    HeaderValue::from_str(value).map_err(Into::into).map(|mut value| {
+      value.set_sensitive(true);
+      value
+    })
   }
 
   fn auth_signature(&self, message: &str) -> Result<String, Error> {
@@ -528,8 +529,8 @@ impl Client {
       hmac
     };
 
-    let hmac = Hmac::new_varkey(self.secret.as_bytes()).map(apply)?;
-    let signed = format!("{:x}", hmac.result().code());
+    let hmac: HmacSha = Hmac::new_varkey(self.secret.as_bytes()).map(apply)?;
+    let signed: String = format!("{:x}", hmac.result().code());
 
     Ok(signed)
   }

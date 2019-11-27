@@ -15,3 +15,12 @@ macro_rules! json {
     serde_json::to_string(&map).expect("Invalid JSON")
   }};
 }
+
+macro_rules! url {
+  ($path:expr) => {
+    ::reqwest::Url::parse(&[$crate::client::ENDPOINT, $path].join("")).unwrap()
+  };
+  ($path:expr, $params:expr) => {
+    ::reqwest::Url::parse_with_params(&[$crate::client::ENDPOINT, $path].join(""), $params).unwrap()
+  };
+}
