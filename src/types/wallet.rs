@@ -140,6 +140,11 @@ pub struct AccountCurrency {
   pub color: String,
   pub exponent: usize,
   pub sort_index: usize,
+  //
+  // Undocumented
+  //
+  pub destination_tag_name: Option<String>,
+  pub destination_tag_regex: Option<String>,
 }
 
 ///
@@ -181,6 +186,11 @@ pub struct Account {
   pub balance: Money,
   pub currency: AccountCurrency,
   pub primary: bool,
+  //
+  // Undocumented
+  //
+  pub allow_deposits: Option<bool>,
+  pub allow_withdrawals: Option<bool>,
 }
 
 ///
